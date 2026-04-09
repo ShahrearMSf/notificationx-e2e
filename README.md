@@ -3,10 +3,10 @@
 <br />
 <div align="center">
   <a href="https://notificationx.com">
-    <img src="https://notificationx.com/wp-content/uploads/2024/01/NX-Icon-150x150.png" alt="Logo" width="80" height="80">
+    <img src="https://notificationx.com/wp-content/uploads/2025/02/NotificationX.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Notomation - NotificationX E2E Test Automation</h3>
+  <h3 align="center">NotificationX E2E Test Automation</h3>
 
   <p align="center">
     Full admin + frontend Playwright test suite for NotificationX (Free + Pro)
@@ -88,7 +88,7 @@ _For more examples, refer to the [Playwright Documentation](https://playwright.d
 ## Project Structure
 
 ```
-Notomation/
+notificationx-e2e/
 ├── .env                                 # Environment variables (BASE_URL, credentials)
 ├── .gitignore                           # Standard ignores
 ├── package.json                         # Dependencies & scripts
