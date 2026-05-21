@@ -43,6 +43,7 @@ const NOTIFICATION_TYPES = [
   { label: "Video", name: "Video" },
   { label: "Email Subscription", name: "Email Subscription" },
   { label: "Page Analytics", name: "Page Analytics" },
+  { label: "Exit Intent Popup", name: "Exit Intent Popup" },
 ];
 
 /**
