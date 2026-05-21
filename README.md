@@ -89,82 +89,80 @@ _For more examples, refer to the [Playwright Documentation](https://playwright.d
 
 ```
 notificationx-e2e/
-├── .env                                 # Environment variables (BASE_URL, credentials)
-├── .gitignore                           # Standard ignores
-├── package.json                         # Dependencies & scripts
-├── playwright.config.js                 # Playwright configuration
-├── README.md                            # This file
+├── .env                                       # Environment variables (BASE_URL, credentials)
+├── .env.example                               # Template for .env
+├── .github/workflows/playwright.yml           # GitHub Actions: schedule + manual + Slack
+├── .gitignore                                 # Standard ignores
+├── package.json                               # Dependencies & scripts
+├── playwright.config.js                       # Playwright configuration
+├── README.md                                  # This file
 ├── helpers/
-│   └── utils.js                         # Shared utilities (safeGoto, gotoNxPage, etc.)
-├── snapshots/                           # Reference screenshots from section exploration
+│   ├── utils.js                               # Shared utilities (safeGoto, gotoNxPage, etc.)
+│   └── slack.js                               # Slack payload builder (used by CI)
+├── snapshots/                                 # Reference screenshots
 ├── tests/
-│   ├── auth.setup.js                    # Admin authentication with storage state
-│   ├── 1-explore-sections.spec.js       # Explore all NX admin sections & take snapshots
-│   ├── 2-add-new-notifications.spec.js  # Create all notification types via Add New wizard
-│   ├── 3-quick-builder-notifications.spec.js  # Create all types via Quick Builder
-│   └── 4-frontend-check.spec.js         # Frontend display, click, analytics verification
+│   ├── auth.setup.js                          # Admin authentication with storage state
+│   ├── 1-add-new-notifications.spec.js        # Create all notification types via Add New
+│   ├── 2-quick-builder-notifications.spec.js  # Create all types via Quick Builder
+│   ├── 3-frontend-check.spec.js               # Frontend display, click, analytics
+│   ├── 4-navigation-tests.spec.js             # Admin sidebar, URLs, wizard navigation
+│   └── 5-exit-intent.spec.js                  # Exit Intent themes, positions, trigger
 └── playwright/
-    └── .auth/                           # Authentication storage states (gitignored)
+    └── .auth/                                 # Authentication storage states (gitignored)
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Test Flow
 
-Tests are ordered **1 through 4** and designed to run sequentially:
+Tests are ordered **1 through 5** and designed to run sequentially:
 
-### 1. Explore Sections (`1-explore-sections.spec.js`)
-Navigates through every static/settings section in NotificationX admin and takes full-page screenshots for future reference.
-
-**Sections covered:**
-- NX Dashboard (All Notifications list)
-- NX Settings > Global Settings tabs
-- NX Settings > Role Management
-- NX Settings > Cache Settings
-
-**Excluded:** Add New wizard, Quick Builder, Analytics (dynamic data), notification creation flows.
-
-### 2. Add New Notifications (`2-add-new-notifications.spec.js`)
+### 1. Add New Notifications (`1-add-new-notifications.spec.js`)
 Creates every notification type through the **Add New** multi-step wizard:
 
-| Type | Source(s) |
-|---|---|
-| WooCommerce | Sales Notification, Reviews |
-| Growth Alert | Growth Alert |
-| Cookie Notice | Cookie Notice |
-| eLearning | eLearning |
-| Sales Notification | Sales |
-| Notification Bar | Notification Bar |
-| Contact Form | Contact Form |
-| Download Stats | Download Stats |
-| Comments | Comments |
-| Discount Alert | Discount Alert |
-| Donations | Donations |
-| Flashing Tab | Flashing Tab |
-| Custom Notification | Custom |
-| Video | Video |
-| Email Subscription | Email Subscription |
+WooCommerce (Sales), WooCommerce (Reviews), Sales Notification, Cookie Notice, eLearning, Notification Bar, Announcement, Reviews, Contact Form, Download Stats, Comments, Discount Alert, Donations, Flashing Tab, Growth Alert, Custom Notification, Video, Email Subscription, Page Analytics, **Exit Intent Popup**.
 
-**Behaviour settings:** Display The Last → 2000, Display From The Last → 2000 days.
+**Behaviour settings:** Display The Last → 2000, Display From The Last → 2000.
 
 After all are created, **all notifications are deleted**.
 
-### 3. Quick Builder Notifications (`3-quick-builder-notifications.spec.js`)
+### 2. Quick Builder Notifications (`2-quick-builder-notifications.spec.js`)
 Same notification types created through the **Quick Builder** flow, with the same behaviour settings. All deleted after creation.
 
-### 4. Frontend Check (`4-frontend-check.spec.js`)
-Creates notifications that can display without external data:
+### 3. Frontend Check (`3-frontend-check.spec.js`)
+Creates displayable notifications, generates analytics data, and verifies display:
 
-- **Comment Notification** (position: left)
-- **Cookie Notice** (position: right)
-- **Custom Notification** (position: left)
-- **Announcement / Notification Bar** (position: top/middle)
+- **Comment Notification**
+- **Cookie Notice**
+- **Notification Bar / Announcement**
+- **Custom Notification**
+- **Growth Alert** with Tea product (Low Stock Threshold = 99)
 
 Then:
-1. Visits the frontend and verifies notifications are visible
-2. Clicks on some notifications
+1. Visits the homepage and shop multiple times
+2. Clicks on visible notifications
 3. Returns to admin → Analytics and checks stats
 4. Deletes all notifications
+
+### 4. Navigation Tests (`4-navigation-tests.spec.js`)
+Admin-focused navigation:
+- Sidebar submenus (Dashboard, All NotificationX, Add New, Settings, Analytics, Quick Builder)
+- Direct URL access to each NX admin page
+- Add New wizard step navigation (forward, previous, tab clicks)
+- Dashboard controls (page size, bulk action, search, date filter)
+- Settings page tab navigation
+- Quick Builder tab navigation
+- Cross-navigation between all NX pages
+
+### 5. Exit Intent Popup (`5-exit-intent.spec.js`)
+Dedicated coverage for the Exit Intent Popup notification type:
+
+- **Themes 1–7** — create and publish with each (all 7 are usable on the live site since Pro is active)
+- **Positions** — Center, Bottom Left, Bottom Right
+  - Each position creates the popup AND verifies on the frontend: triggers `mouseout` to the top edge, checks the popup appears in the correct quadrant, and confirms a position-related class is present in the DOM
+- **Custom content** — change title, subtitle, and submit button text
+- **Frontend trigger** — mouse leave to the top of the viewport surfaces the popup
+- **Frontend close** — close button dismisses the popup
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -200,18 +198,20 @@ NotificationX (Free + Pro with WooCommerce) supports these notification types:
 | Custom Notification | Manual Data Entry | No |
 | Video | Video Embeds | No |
 | Email Subscription | MailChimp, ConvertKit, etc. | Yes |
+| Exit Intent Popup | Custom (3 free themes + 4 PRO themes, 3 positions) | No |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Roadmap
 
-- [ ] Explore all NX admin sections with snapshots
-- [ ] Create all notification types via Add New
-- [ ] Create all notification types via Quick Builder
-- [ ] Frontend notification display verification
-- [ ] Frontend notification click tracking
-- [ ] Analytics stats verification
-- [ ] CI/CD pipeline (GitHub Actions)
+- [x] Create all notification types via Add New
+- [x] Create all notification types via Quick Builder
+- [x] Frontend notification display verification
+- [x] Frontend notification click tracking
+- [x] Analytics stats verification
+- [x] Admin navigation tests
+- [x] Exit Intent Popup dedicated coverage (themes, positions, frontend trigger)
+- [x] CI/CD pipeline (GitHub Actions + Slack notifications)
 - [ ] Cross-browser support (Firefox, WebKit)
 - [ ] Multi-role testing (editor, subscriber views)
 

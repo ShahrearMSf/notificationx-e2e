@@ -53,6 +53,7 @@ const NOTIFICATION_TYPES = [
   { label: "Video", subSource: null, name: "Video" },
   { label: "Email Subscription", subSource: null, name: "Email Subscription" },
   { label: "Page Analytics", subSource: null, name: "Page Analytics" },
+  { label: "Exit Intent Popup", subSource: null, name: "Exit Intent Popup" },
 ];
 
 /**
