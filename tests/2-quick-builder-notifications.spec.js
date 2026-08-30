@@ -39,6 +39,7 @@ const NOTIFICATION_TYPES = [
   { label: "Donations", name: "Donations" },
   { label: "Flashing Tab", name: "Flashing Tab" },
   { label: "Growth Alert", name: "Growth Alert" },
+  { label: "Cart Peek", name: "Cart Peek" },
   { label: "Custom Notification", name: "Custom Notification" },
   { label: "Video", name: "Video" },
   { label: "Email Subscription", name: "Email Subscription" },
