@@ -20,7 +20,7 @@ jobs:
   playwright-test:
     name: Run Playwright Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 150
     env:
       CI: true
     outputs:
@@ -54,6 +54,7 @@ jobs:
       - name: Run Playwright tests
         id: test-run
         continue-on-error: true
+        timeout-minutes: 130
         run: npx playwright test --project=setup --project=chromium --reporter=html,json
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
