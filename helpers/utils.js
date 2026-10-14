@@ -44,15 +44,18 @@ export async function gotoNxPage(page, slug) {
  * @param {import("@playwright/test").Page} page
  */
 export async function handleEmailVerification(page) {
-  try {
-    const correctEmailBtn = page.locator('a:has-text("correct")').first();
-    const isVisible = await correctEmailBtn.isVisible({ timeout: 3000 });
-    if (isVisible) {
-      await correctEmailBtn.click();
-      await page.waitForLoadState("domcontentloaded");
-    }
-  } catch {
-    // Not on email verification screen, proceed normally
+  // Wait for login to land on either the dashboard or the verification screen
+  const verifyHeading = page.getByRole("heading", { name: "Administration email verification" });
+  const dashboardHeading = page.getByRole("heading", { name: "Dashboard" });
+  await verifyHeading.or(dashboardHeading).first().waitFor({ timeout: 30000 }).catch(() => {});
+
+  if (await verifyHeading.isVisible()) {
+    // WP renders "The email is correct" as a <button>, with older versions using a link
+    await page.getByRole("button", { name: "The email is correct" })
+      .or(page.getByRole("link", { name: "The email is correct" }))
+      .first()
+      .click();
+    await page.waitForLoadState("domcontentloaded");
   }
 }
 
