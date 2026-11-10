@@ -42,7 +42,15 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        timeout-minutes: 35
+        run: |
+          # apt has no network timeout by default, so a stalled mirror hangs the job
+          echo 'Acquire::Retries "3"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99-ci-timeouts
+          for attempt in 1 2 3; do
+            timeout 600 npx playwright install --with-deps chromium && exit 0
+            echo "Browser install attempt $attempt failed, retrying..."
+          done
+          exit 1
 
       - name: Set up environment variables
         run: |
